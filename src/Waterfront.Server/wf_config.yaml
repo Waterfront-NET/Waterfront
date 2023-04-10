@@ -1,0 +1,31 @@
+﻿endpoints:
+  tokenendpoint: /tokened
+tokens:
+  issuer: https://localhost:5050
+  lifetime: 00:01:00
+certificate_providers:
+  file:
+    certificate_path: certs/localhost.crt
+    private_key_path: certs/localhost.key
+users:
+  - username: root
+    plain_text_password: superuser
+    acl: [admin]
+  - username: localhostUser
+    ip: 127.0.0.1:*
+    acl: [pull-any]
+
+acl:
+  - name: admin
+    access:
+      - type: registry
+        name: '*'
+        actions: ['*']
+      - type: repository
+        name: '**/*'
+        actions: ['*']
+  - name: pull-any
+    access:
+      - type: repository
+        name: '*'
+        actions: [pull]
