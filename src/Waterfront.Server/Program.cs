@@ -1,11 +1,11 @@
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
-using Waterfront.AspNetCore.Extensions;
-using Waterfront.Core.Tokens.Signing.CertificateProviders;
-using Waterfront.Acl.Static;
+using Waterfront.Acl.Static.Authentication;
+using Waterfront.Acl.Static.Authorization;
+using Waterfront.Acl.Static.Configuration;
 using Waterfront.Acl.Static.Models;
-using Waterfront.Server.Configuration;
-using Waterfront.Server.Extensions;
+using Waterfront.AspNetCore.Extensions;
+using Waterfront.Core.Tokens.Signing.CertificateProviders.Files;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -36,50 +36,48 @@ builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddWaterfront(
-    wf => {
-        wf.ConfigureTokenOptions(builder.Configuration.GetSection("Tokens").Bind)
-          .ConfigureEndPoints(builder.Configuration.GetSection("Endpoints").Bind)
-          .UseCertificateProviders(
-              builder.Configuration.GetSection("Tokens:Signing")
-                     .Get<SigningCertificateProviderOptions>()
-          )
-          .WithCertificateProvider<FileSigningCertificateProvider,
-              FileTokenCertificateProviderOptions>(
-              opt => {
-                  opt.CertificatePath = "certs/localhost.crt";
-                  opt.PrivateKeyPath  = "certs/localhost.key";
-              }
-          )
-          .WithAuthentication<StaticAclAuthenticationService, StaticAclOptions>(
-              opt => {
-                  opt.Users = new[] {
-                      new StaticAclUser {
-                          Username = "localhostUser",
-                          Ip       = "127.0.0.1:*",
-                          Acl      = new[] { "localhost" }
-                      }
-                  };
-                  opt.Acl = new[] {
-                      new StaticAclPolicy {
-                          Name = "localhost",
-                          Access = new[] {
-                              new StaticAclPolicyAccessRule {
-                                  Type = "repository",
-                                  Name = "*",
-                                  Actions =
-                                  new[] { "pull", "push" }
-                              }
-                          }
-                      }
-                  };
-              }
-          )
-          .WithAuthorization<StaticAclAuthorizationService>();
+    waterfront => {
+        waterfront.ConfigureEndpoints(endpoints => endpoints.SetTokenEndpoint("/token"))
+                  .ConfigureTokens(
+                      tokens => tokens.SetIssuer("http://localhost:5050").SetLifetime(120)
+                  );
 
+        IConfigurationSection fileCertConfig = builder.Configuration.GetSection("Certificate_Providers:File");
+
+        if ( fileCertConfig.Exists() )
+        {
+            waterfront
+            .WithSigningCertificateProvider<FileSigningCertificateProvider,
+                FileSigningCertificateProviderOptions>(
+                opt => {
+                    opt.CertificatePath = fileCertConfig.GetValue<string>("Certificate_Path")!;
+                    opt.PrivateKeyPath  = fileCertConfig.GetValue<string>("Private_Key_Path")!;
+                });
+        }
+
+        StaticAclUser[]? staticAclUserList = builder.Configuration.GetSection("Users").Get<StaticAclUser[]>();
+
+        if ( staticAclUserList is { Length: not 0 } )
+        {
+            waterfront
+            .WithAuthentication<StaticAclAuthenticationService, StaticAclAuthenticationOptions>(
+                opt => opt.Users = staticAclUserList
+            );
+        }
+
+        StaticAclPolicy[]? staticAclPolicyList = builder.Configuration.GetSection("Acl").Get<StaticAclPolicy[]>();
+
+        if ( staticAclPolicyList is { Length: not 0 } )
+        {
+            waterfront
+            .WithAuthorization<StaticAclAuthorizationService, StaticAclAuthorizationOptions>(
+                opt => opt.Acl = staticAclPolicyList
+            );
+        }
     }
 );
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.UseWaterfront();
 

@@ -1,5 +1,5 @@
 ﻿endpoints:
-  tokenendpoint: /tokened
+  token: /tokened
 tokens:
   issuer: https://localhost:5050
   lifetime: 00:01:00
@@ -8,13 +8,12 @@ certificate_providers:
     certificate_path: certs/localhost.crt
     private_key_path: certs/localhost.key
 users:
-  - username: root
-    plain_text_password: superuser
-    acl: [admin]
   - username: localhostUser
     ip: 127.0.0.1:*
     acl: [pull-any]
-
+  - username: root
+    plaintextpassword: superuser
+    acl: [admin]
 acl:
   - name: admin
     access:

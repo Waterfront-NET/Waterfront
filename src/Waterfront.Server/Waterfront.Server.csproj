@@ -10,10 +10,10 @@
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.2" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
-        <PackageReference Include="Waterfront.AspNetCore" Version="1.0.0-alpha.5" />
-        <PackageReference Include="Waterfront.Acl.Static.Models" Version="1.0.0-alpha.4" />
-        <PackageReference Include="Waterfront.Acl.Static" Version="1.0.0-alpha.4" />
+        <PackageReference Include="Waterfront.AspNetCore" Version="1.0.0-alpha.13" />
+        <PackageReference Include="Waterfront.Acl.Static" Version="1.0.0-alpha.6" />
         <PackageReference Include="NetEscapades.Configuration.Yaml" Version="3.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5" />
     </ItemGroup>
 
 </Project>
