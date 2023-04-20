@@ -1,11 +1,11 @@
+using System.Runtime.CompilerServices;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
-using Waterfront.Acl.Static.Authentication;
-using Waterfront.Acl.Static.Authorization;
 using Waterfront.Acl.Static.Configuration;
+using Waterfront.Acl.Static.Extensions.DependencyInjection;
 using Waterfront.Acl.Static.Models;
 using Waterfront.AspNetCore.Extensions;
-using Waterfront.Core.Tokens.Signing.CertificateProviders.Files;
+using Waterfront.Extensions.DependencyInjection;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -35,54 +35,51 @@ builder.Host.UseSerilog(
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddWaterfront(
-    waterfront => {
-        waterfront.ConfigureEndpoints(endpoints => endpoints.SetTokenEndpoint("/token"))
-                  .ConfigureTokens(
-                      tokens => tokens.SetIssuer("http://localhost:5050").SetLifetime(120)
-                  );
-
-        IConfigurationSection fileCertConfig = builder.Configuration.GetSection("Certificate_Providers:File");
-
-        if ( fileCertConfig.Exists() )
-        {
-            waterfront
-            .WithSigningCertificateProvider<FileSigningCertificateProvider,
-                FileSigningCertificateProviderOptions>(
-                opt => {
-                    opt.CertificatePath = fileCertConfig.GetValue<string>("Certificate_Path")!;
-                    opt.PrivateKeyPath  = fileCertConfig.GetValue<string>("Private_Key_Path")!;
-                });
-        }
-
-        StaticAclUser[]? staticAclUserList = builder.Configuration.GetSection("Users").Get<StaticAclUser[]>();
-
-        if ( staticAclUserList is { Length: not 0 } )
-        {
-            waterfront
-            .WithAuthentication<StaticAclAuthenticationService, StaticAclAuthenticationOptions>(
-                opt => opt.Users = staticAclUserList
-            );
-        }
-
-        StaticAclPolicy[]? staticAclPolicyList = builder.Configuration.GetSection("Acl").Get<StaticAclPolicy[]>();
-
-        if ( staticAclPolicyList is { Length: not 0 } )
-        {
-            waterfront
-            .WithAuthorization<StaticAclAuthorizationService, StaticAclAuthorizationOptions>(
-                opt => opt.Acl = staticAclPolicyList
-            );
-        }
-    }
-);
+IWaterfrontBuilder waterfront = builder.Services.AddWaterfront()
+                                       .AddTokenMiddleware()
+                                       .ConfigureTokens(
+                                           opt => opt.SetIssuer("http://localhost:5050")
+                                                     .SetLifetime(120)
+                                       )
+                                       .ConfigureEndpoints(opt => opt.SetTokenEndpoint("/token"))
+                                       .WithFileSigningCertificateProvider(
+                                           "./certs/localhost.crt",
+                                           "./certs/localhost.key"
+                                       )
+                                       .WithDefaultTokenEncoder()
+                                       .WithDefaultTokenDefinitionService()
+                                       .AddStaticAuthentication(
+                                           opt => {
+                                               opt.Users.Add(
+                                                   new StaticAclUser {
+                                                       Username = "local_user",
+                                                       Ip       = "127.0.0.1:*",
+                                                       Acl      = { "default" }
+                                                   }
+                                               );
+                                           }
+                                       )
+                                       .AddStaticAuthorization(
+                                           new StaticAclPolicy {
+                                               Name = "default",
+                                               Access = {
+                                                   new StaticAclPolicyAccessRule {
+                                                       Name = "*",
+                                                       Type =
+                                                       "repository",
+                                                       Actions = {
+                                                           "pull"
+                                                       }
+                                                   }
+                                               }
+                                           }
+                                       );
 
 WebApplication app = builder.Build();
 
 app.UseWaterfront();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwagger().UseSwaggerUI();
 
 app.MapControllers();
 

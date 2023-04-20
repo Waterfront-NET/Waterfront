@@ -7,13 +7,37 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.2" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-        <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
-        <PackageReference Include="Waterfront.AspNetCore" Version="1.0.0-alpha.13" />
-        <PackageReference Include="Waterfront.Acl.Static" Version="1.0.0-alpha.6" />
-        <PackageReference Include="NetEscapades.Configuration.Yaml" Version="3.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.2"/>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
+        <PackageReference Include="Serilog.AspNetCore" Version="6.1.0"/>
+        <PackageReference Include="NetEscapades.Configuration.Yaml" Version="3.0.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5"/>
+        <PackageReference Include="Bcrypt.Net-Next" Version="4.0.3"/>
+        <PackageReference Include="DotNet.Glob" Version="3.1.3"/>
+        <PackageReference Include="JWT" Version="10.0.0"/>
+        <PackageReference Include="SimpleBase" Version="4.0.0"/>
+        <PackageReference Include="Sprache" Version="2.3.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="Waterfront.Acl.Static">
+            <HintPath>..\..\..\Waterfront.Acl.Static\src\Waterfront.Acl.Static\bin\Debug\net6.0\Waterfront.Acl.Static.dll</HintPath>
+        </Reference>
+        <Reference Include="Waterfront.Acl.Static.Extensions.DependencyInjection">
+            <HintPath>..\..\..\Waterfront.Acl.Static\src\Waterfront.Acl.Static.Extensions.DependencyInjection\bin\Debug\net6.0\Waterfront.Acl.Static.Extensions.DependencyInjection.dll</HintPath>
+        </Reference>
+        <Reference Include="Waterfront.AspNetCore">
+            <HintPath>..\..\..\Waterfront.AspNetCore\src\Waterfront.AspNetCore\bin\Debug\net6.0\Waterfront.AspNetCore.dll</HintPath>
+        </Reference>
+        <Reference Include="Waterfront.Common">
+            <HintPath>..\..\..\Waterfront\src\Waterfront.Common\bin\Debug\net6.0\Waterfront.Common.dll</HintPath>
+        </Reference>
+        <Reference Include="Waterfront.Core">
+            <HintPath>..\..\..\Waterfront\src\Waterfront.Core\bin\Debug\net6.0\Waterfront.Core.dll</HintPath>
+        </Reference>
+        <Reference Include="Waterfront.Extensions.DependencyInjection">
+            <HintPath>..\..\..\Waterfront.Extensions.DependencyInjection\src\Waterfront.Extensions.DependencyInjection\bin\Debug\net6.0\Waterfront.Extensions.DependencyInjection.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
 </Project>
