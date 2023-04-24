@@ -1,7 +1,5 @@
-using System.Runtime.CompilerServices;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
-using Waterfront.Acl.Static.Configuration;
 using Waterfront.Acl.Static.Extensions.DependencyInjection;
 using Waterfront.Acl.Static.Models;
 using Waterfront.AspNetCore.Extensions;
@@ -16,7 +14,7 @@ string? customConfigFilePath = builder.Configuration.GetValue(
     builder.Configuration.GetValue("Config_Path", string.Empty)!
 );
 
-if ( !string.IsNullOrEmpty(customConfigFilePath) )
+if ( !string.IsNullOrEmpty(customConfigFilePath) ) 
 {
     builder.Configuration.AddYamlFile(customConfigFilePath, true);
 }
@@ -35,51 +33,56 @@ builder.Host.UseSerilog(
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 
-IWaterfrontBuilder waterfront = builder.Services.AddWaterfront()
-                                       .AddTokenMiddleware()
-                                       .ConfigureTokens(
-                                           opt => opt.SetIssuer("http://localhost:5050")
-                                                     .SetLifetime(120)
-                                       )
-                                       .ConfigureEndpoints(opt => opt.SetTokenEndpoint("/token"))
-                                       .WithFileSigningCertificateProvider(
-                                           "./certs/localhost.crt",
-                                           "./certs/localhost.key"
-                                       )
-                                       .WithDefaultTokenEncoder()
-                                       .WithDefaultTokenDefinitionService()
-                                       .AddStaticAuthentication(
-                                           opt => {
-                                               opt.Users.Add(
-                                                   new StaticAclUser {
-                                                       Username = "local_user",
-                                                       Ip       = "127.0.0.1:*",
-                                                       Acl      = { "default" }
-                                                   }
-                                               );
-                                           }
-                                       )
-                                       .AddStaticAuthorization(
-                                           new StaticAclPolicy {
-                                               Name = "default",
-                                               Access = {
-                                                   new StaticAclPolicyAccessRule {
-                                                       Name = "*",
-                                                       Type =
-                                                       "repository",
-                                                       Actions = {
-                                                           "pull"
-                                                       }
-                                                   }
-                                               }
-                                           }
-                                       );
+builder.Services.AddWaterfront(
+    wf => wf.AddTokenMiddleware()
+            .ConfigureTokens(tokens => tokens.SetIssuer("http://localhost:5050").SetLifetime(120))
+            .ConfigureEndpoints(opt => opt.SetTokenEndpoint("/token"))
+            .WithFileSigningCertificateProvider("./certs/localhost.crt", "./certs/localhost.key")
+            .WithDefaultTokenEncoder()
+            .WithDefaultTokenDefinitionService()
+            .AddStaticAuthentication(
+                new StaticAclUser {
+                    Username          = "root",
+                    PlainTextPassword = "rootpwd",
+                    Acl               = { "admin" }
+                },
+                new StaticAclUser {
+                    Username = "anonymous",
+                    Acl      = { "anonymous" }
+                }
+            )
+            .AddStaticAuthorization(
+                new StaticAclPolicy {
+                    Name = "anonymous",
+                    Access = {
+                        new StaticAclPolicyAccessRule {
+                            Type    = "repository",
+                            Name    = "**/*",
+                            Actions = { "pull" }
+                        }
+                    }
+                },
+                new StaticAclPolicy {
+                    Name = "admin",
+                    Access = {
+                        new StaticAclPolicyAccessRule {
+                            Type    = "registry",
+                            Name    = "**/*",
+                            Actions = { "*" }
+                        },
+                        new StaticAclPolicyAccessRule {
+                            Type    = "repository",
+                            Name    = "**/*",
+                            Actions = { "*" }
+                        }
+                    }
+                }
+            )
+);
 
 WebApplication app = builder.Build();
 
-app.UseWaterfront();
-
-app.UseSwagger().UseSwaggerUI();
+app.UseWaterfront().UseSwagger().UseSwaggerUI();
 
 app.MapControllers();
 
