@@ -14,6 +14,9 @@ users:
   - username: root
     plaintextpassword: superuser
     acl: [admin]
+  - username: default
+    acl: [pull-any, push-any]
+    plain_text_password: defaultuserpass
 acl:
   - name: admin
     access:
