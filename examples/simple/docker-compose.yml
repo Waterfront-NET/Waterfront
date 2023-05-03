@@ -1,0 +1,22 @@
+services:
+  waterfront:
+    image: waterfront:latest
+    environment:
+      WF_CONFIG_PATH: /etc/waterfront/wf_config.yml
+    ports:
+      - 5001:5001
+    volumes:
+      - ./wf_config.yml:/etc/waterfront/wf_config.yml
+      - ./certs:/etc/waterfront/certs:ro
+  registry:
+    image: registry:2
+    environment:
+      REGISTRY_AUTH_TOKEN_REALM: http://localhost:5001/token
+      REGISTRY_AUTH_TOKEN_SERVICE: docker
+      REGISTRY_AUTH_TOKEN_ISSUER: http://localhost:5001
+      REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: /etc/docker/registry/certs/localhost.crt
+      REGISTRY_AUTH_TOKEN_AUTOREDIRECT: true
+    ports:
+      - 5000:5000
+    volumes:
+      - ./certs/localhost.crt:/etc/docker/registry/certs/localhost.crt

@@ -1,0 +1,6 @@
+Simple example based on the Waterfront.Server publicly released docker image
+You have to provide your own certificates (probably self-signed) for paths in wf_config and docker-compose:
+  private key at /etc/waterfront/certs/localhost.key
+  certificate at /etc/waterfront/certs/localhost.crt and /etc/docker/registry/certs/localhost.crt
+Authentication server will be served at localhost:5001
+Docker registry will be served at localhost:5000

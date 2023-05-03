@@ -1,0 +1,30 @@
+tokens:
+  issuer: http://localhost:5001
+  lifetime: 60
+endpoints:
+  token: /token
+certificate_providers:
+  file:
+    certificate_path: /etc/waterfront/certs/localhost.crt
+    private_key_path: /etc/waterfront/certs/localhost.key
+acl:
+  - name: default
+    access:
+      - name: '*/**'
+        type: repository
+        actions: [pull]
+  - name: admin
+    access:
+      - name: '*/**'
+        type: repository
+        actions: [pull, push]
+      - name: '*'
+        type: registry
+        actions: ['*']
+users:
+  - username: localhostUser
+    ip: 127.0.0.1:*
+    acl: [default]
+  - username: root
+    plain_text_password: superuser
+    acl: [admin]
