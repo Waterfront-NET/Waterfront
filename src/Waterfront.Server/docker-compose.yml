@@ -1,0 +1,22 @@
+services:
+  auth:
+    image: waterfront:0.1.0-alpha.8
+    environment:
+      ASPNETCORE_URLS: http://0.0.0.0:5050
+    volumes:
+      - ./wf_config.yaml:/srv/waterfront/wf_config.yaml
+      - ./certs:/etc/waterfront/certs:ro
+    ports:
+      - 5050:5050
+  registry:
+    image: registry:2
+    environment:
+      REGISTRY_AUTH: token
+      REGISTRY_AUTH_TOKEN_REALM: http://localhost:5050/token
+      REGISTRY_AUTH_TOKEN_SERVICE: docker
+      REGISTRY_AUTH_TOKEN_ISSUER: http://localhost:5050
+      REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: /etc/docker/registry/certs/localhost.crt
+    volumes:
+      - ./certs/localhost.crt:/etc/docker/registry/certs/localhost.crt
+    ports:
+      - 5000:5000

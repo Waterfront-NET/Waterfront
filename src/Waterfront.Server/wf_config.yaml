@@ -1,18 +1,19 @@
 ﻿endpoints:
-  token: /tokened
+  token: /token
 tokens:
   Issuer: http://localhost:5050
   Lifetime: 00:01:00
 certificate_providers:
   file:
-    certificate_path: certs/localhost.crt
-    private_key_path: certs/localhost.key
+    certificate_path: /etc/waterfront/certs/localhost.crt
+    private_key_path: /etc/waterfront/certs/localhost.key
 users:
   - username: root
     plain_text_password: superuser
     acl: [admin]
   - username: default
     acl: [pull-any, push-any]
+    plain_text_password: default
 acl:
   - name: admin
     access:
@@ -25,5 +26,5 @@ acl:
   - name: pull-any
     access:
       - type: repository
-        name: '*'
+        name: '**/*'
         actions: [pull]

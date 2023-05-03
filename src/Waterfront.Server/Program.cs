@@ -17,7 +17,7 @@ string? customConfigFilePath = builder.Configuration.GetValue(
     builder.Configuration.GetValue("Config_Path", string.Empty)!
 );
 
-if (!string.IsNullOrEmpty(customConfigFilePath))
+if ( !string.IsNullOrEmpty(customConfigFilePath) )
 {
     builder.Configuration.AddYamlFile(customConfigFilePath, CamelCaseNamingConvention.Instance);
 }
@@ -29,33 +29,40 @@ else
     builder.Configuration.AddYamlFile("config.yml", CamelCaseNamingConvention.Instance, true);
 }
 
-builder.Host.UseSerilog((_, config) => config.WriteTo.Console(theme: AnsiConsoleTheme.Literate).MinimumLevel.Debug());
+builder.Host.UseSerilog(
+    (_, config) => config.WriteTo.Console(theme: AnsiConsoleTheme.Literate).MinimumLevel.Debug()
+);
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddWaterfront(
-    wf =>
-    {
+    wf => {
         wf.AddTokenMiddleware()
-          .ConfigureTokens(
-              tokens =>
-              {
-                  builder.Configuration.GetSection("Tokens").Bind(tokens);
-              })
-          .ConfigureEndpoints(opt => opt.SetTokenEndpoint("/token"))
-          .WithFileSigningCertificateProvider("./certs/localhost.crt", "./certs/localhost.key")
+          .ConfigureTokens(builder.Configuration.GetSection("Tokens").Bind)
+          .ConfigureEndpoints(endpoints => endpoints.SetTokenEndpoint(builder.Configuration["Endpoints:Token"]))
           .WithDefaultTokenEncoder()
           .WithDefaultTokenDefinitionService();
 
-        if (builder.Configuration.GetSection("Users").Exists())
+        if ( builder.Configuration.GetSection("CertificateProviders:File").Exists() )
         {
-            wf.AddStaticAuthentication(builder.Configuration.GetSection("Users").Get<StaticAclUser[]>()!);
+            wf.WithFileSigningCertificateProvider(
+                builder.Configuration.GetSection("CertificateProviders:File").Bind
+            );
         }
 
-        if (builder.Configuration.GetSection("Acl").Exists())
+        if ( builder.Configuration.GetSection("Users").Exists() )
         {
-            wf.AddStaticAuthorization(builder.Configuration.GetSection("Acl").Get<StaticAclPolicy[]>()!);
+            wf.AddStaticAuthentication(
+                builder.Configuration.GetSection("Users").Get<StaticAclUser[]>()!
+            );
+        }
+
+        if ( builder.Configuration.GetSection("Acl").Exists() )
+        {
+            wf.AddStaticAuthorization(
+                builder.Configuration.GetSection("Acl").Get<StaticAclPolicy[]>()!
+            );
         }
     }
 );
