@@ -16,6 +16,7 @@ services:
       REGISTRY_AUTH_TOKEN_SERVICE: docker
       REGISTRY_AUTH_TOKEN_ISSUER: http://localhost:5050
       REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: /etc/docker/registry/certs/localhost.crt
+      REGISTRY_AUTH_TOKEN_AUTOREDIRECT: true
     volumes:
       - ./certs/localhost.crt:/etc/docker/registry/certs/localhost.crt
     ports:

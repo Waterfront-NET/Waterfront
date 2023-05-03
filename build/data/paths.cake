@@ -8,4 +8,5 @@ class BuildPaths {
   public FilePath Solution => Root.CombineWithFilePath("Waterfront.Server.sln");
   public DirectoryPath Packages => Root.Combine("artifacts/pkg");
   public DirectoryPath Libraries => Root.Combine("artifacts/lib");
+  public FilePath Dockerfile => Src.CombineWithFilePath("Waterfront.Server/Dockerfile");
 }
