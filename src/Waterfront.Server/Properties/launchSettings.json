@@ -6,9 +6,7 @@
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5050",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "USERS__2__USERNAME": "thirduser",
-        "USERS__2__PLAINTEXTPASSWORD": "tup"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
   }
