@@ -1,0 +1,18 @@
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v3
+      - run: ./build.sh --target build --configuration Release
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Waterfront_Release_net6.0
+          path: src/Waterfront.Server/bin/Release/net6.0/*
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Tests are not implemented yet for ${{ github.repository }}'

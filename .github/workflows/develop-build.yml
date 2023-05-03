@@ -1,0 +1,25 @@
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v3
+      - run: ./build.sh --target build --configuration Release
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Waterfront_Release_net6.0
+          path: src/Waterfront.Server/bin/Release/net6.0/*
+      - run: ./build.sh --target docker/export-image
+      - uses: actions/upload-artifact@v3
+        with:
+          name: waterfront-docker-latest
+          path: artifacts/docker/*.tar.gz
+  publish:
+    runs-on: ubuntu-latest
+    needs: [build]
