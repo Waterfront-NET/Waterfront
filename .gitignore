@@ -8,3 +8,6 @@ obj/
 TestResults/
 tools/
 artifacts/
+
+*.crt
+*.key
