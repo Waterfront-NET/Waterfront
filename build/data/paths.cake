@@ -6,7 +6,7 @@ class BuildPaths {
   public DirectoryPath Src => Root.Combine("src");
   public DirectoryPath Test => Root.Combine("test");
   public FilePath Solution => Root.CombineWithFilePath("Waterfront.Server.sln");
-  public DirectoryPath Packages => Root.Combine("artifacts/pkg");
   public DirectoryPath Libraries => Root.Combine("artifacts/lib");
+  public DirectoryPath DockerImages => Root.Combine("artifacts/docker-images");
   public FilePath Dockerfile => Src.CombineWithFilePath("Waterfront.Server/Dockerfile");
 }
