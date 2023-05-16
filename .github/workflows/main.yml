@@ -10,9 +10,5 @@ jobs:
       - run: ./build.sh --target build --configuration Release
       - uses: actions/upload-artifact@v3
         with:
-          name: Waterfront_Release_net6.0
-          path: src/Waterfront.Server/bin/Release/net6.0/*
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo 'Tests are not implemented yet for ${{ github.repository }}'
+          name: libraries
+          path: artifacts/lib/*.zip

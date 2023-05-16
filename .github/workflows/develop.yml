@@ -1,0 +1,23 @@
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v3
+      - run: ./build.sh --target build --configuration Release --verbosity verbose
+      - run: ./build.sh --target docker/build --configuration Release --verbosity verbose --no-build --tags develop
+      - run: ./build.sh --target docker/export --tags develop
+      - uses: actions/upload-artifact@v3
+        with:
+          name: libraries
+          path: artifacts/lib/*.zip
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docker-images
+          path: artifacts/docker-images/*.tar.gz
