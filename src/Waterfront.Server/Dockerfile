@@ -1,5 +1,5 @@
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
-ARG CONFIGURATION
+ARG SOURCEDIR
 WORKDIR /srv/waterfront
-COPY ./bin/$CONFIGURATION/net6.0 .
+COPY $SOURCEDIR .
 ENTRYPOINT ["dotnet", "Waterfront.Server.dll"]
