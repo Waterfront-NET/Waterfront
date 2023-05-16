@@ -22,8 +22,7 @@ acl:
         type: registry
         actions: ['*']
 users:
-  - username: localhostUser
-    ip: 127.0.0.1:*
+  - username: defaultUser
     acl: [default]
   - username: root
     plain_text_password: superuser

@@ -1,20 +1,29 @@
 #addin nuget:?package=Cake.Docker&version=1.2.0
 #load ../data/*.cake
 
-Task("docker/build/dev-image").Does(() => {
-  DockerBuild(new DockerImageBuildSettings {
-    Tag = new[] {"waterfront"}
-  }, ".");
-});
+string[] imageTags = {
+  "waterfront:latest",
+  $"waterfront:{version.SemVer}"
+};
 
-Task(":server:docker/build-image")
+Task("docker/build-image")
+.WithCriteria(args.Configuration is "Release")
 .IsDependentOn(":server:build")
 .Does(() => {
+  var project = projects.Find(project => project.Name == "Waterfront.Server");
+
   DockerBuild(new DockerImageBuildSettings {
     BuildArg = new[] {
-      "CONFIGURATION=" + args.Configuration
+      $"CONFIGURATION={args.Configuration}"
     },
-    File = paths.Dockerfile.ToString(),
-    Tag = new[] {$"waterfront:{version.SemVer}", "waterfront:latest"}
-  }, paths.Src.Combine("Waterfront.Server").ToString());
+    File = project.Directory.CombineWithFilePath("Dockerfile").ToString(),
+    Tag = imageTags
+  }, project.Directory.ToString());
+});
+
+Task("docker/push-images")
+.DoesForEach(imageTags, tag => {
+  DockerPush(new DockerImagePushSettings {
+
+  }, tag);
 });

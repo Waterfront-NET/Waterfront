@@ -1,7 +1,8 @@
-using Dvchevskii.Extensions.Configuration.Yaml;
 using Dvchevskii.Extensions.Configuration.Yaml.FileExtensions;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
+using Waterfront.Acl.Sqlite.Configuration;
+using Waterfront.Acl.Sqlite.Extensions;
 using Waterfront.Acl.Static.Extensions.DependencyInjection;
 using Waterfront.Acl.Static.Models;
 using Waterfront.AspNetCore.Extensions;
@@ -19,14 +20,33 @@ string? customConfigFilePath = builder.Configuration.GetValue(
 
 if ( !string.IsNullOrEmpty(customConfigFilePath) )
 {
-    builder.Configuration.AddYamlFile(customConfigFilePath, CamelCaseNamingConvention.Instance);
+    builder.Configuration.AddYamlFile(
+        Path.GetFullPath(customConfigFilePath),
+        CamelCaseNamingConvention.Instance
+    );
 }
 else
 {
-    builder.Configuration.AddYamlFile("wf_config.yaml", PascalCaseNamingConvention.Instance, true);
-    builder.Configuration.AddYamlFile("wf_config.yml", CamelCaseNamingConvention.Instance, true);
-    builder.Configuration.AddYamlFile("config.yaml", CamelCaseNamingConvention.Instance, true);
-    builder.Configuration.AddYamlFile("config.yml", CamelCaseNamingConvention.Instance, true);
+    builder.Configuration.AddYamlFile(
+        Path.GetFullPath("wf_config.yaml"),
+        PascalCaseNamingConvention.Instance,
+        true
+    );
+    builder.Configuration.AddYamlFile(
+        Path.GetFullPath("wf_config.yml"),
+        CamelCaseNamingConvention.Instance,
+        true
+    );
+    builder.Configuration.AddYamlFile(
+        Path.GetFullPath("config.yaml"),
+        CamelCaseNamingConvention.Instance,
+        true
+    );
+    builder.Configuration.AddYamlFile(
+        Path.GetFullPath("config.yml"),
+        CamelCaseNamingConvention.Instance,
+        true
+    );
 }
 
 builder.Host.UseSerilog(
@@ -40,7 +60,9 @@ builder.Services.AddWaterfront(
     wf => {
         wf.AddTokenMiddleware()
           .ConfigureTokens(builder.Configuration.GetSection("Tokens").Bind)
-          .ConfigureEndpoints(endpoints => endpoints.SetTokenEndpoint(builder.Configuration["Endpoints:Token"]))
+          .ConfigureEndpoints(
+              endpoints => endpoints.SetTokenEndpoint(builder.Configuration["Endpoints:Token"])
+          )
           .WithDefaultTokenEncoder()
           .WithDefaultTokenDefinitionService();
 
@@ -63,6 +85,31 @@ builder.Services.AddWaterfront(
             wf.AddStaticAuthorization(
                 builder.Configuration.GetSection("Acl").Get<StaticAclPolicy[]>()!
             );
+        }
+
+        if ( builder.Configuration.GetSection("Sqlite").Exists() )
+        {
+            SqliteAclOptions sqliteOptions = builder.Configuration.GetSection("Sqlite").Get<SqliteAclOptions>();
+            
+            if ( sqliteOptions.SupportsAuthentication )
+            {
+                wf.AddSqliteAuthentication(
+                    opt => {
+                        opt.DataSource = sqliteOptions.DataSource;
+                        opt.Users      = sqliteOptions.Users;
+                    }
+                );
+            }
+            
+            if ( sqliteOptions.SupportsAuthorization )
+            {
+                wf.AddSqliteAuthorization(
+                    opt => {
+                        opt.DataSource = sqliteOptions.DataSource;
+                        opt.Acl        = sqliteOptions.Acl;
+                    }
+                );
+            }
         }
     }
 );
