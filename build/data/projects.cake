@@ -6,8 +6,8 @@ static List<BuildProject> projects;
 
 projects = new List<BuildProject> {
   new BuildProject {
-    Name = "Waterfront.Server",
-    Path = paths.Src.CombineWithFilePath("Waterfront.Server/Waterfront.Server.csproj")
+    Name = "Waterfront",
+    Path = paths.Src.CombineWithFilePath("Waterfront/Waterfront.csproj")
   }
 };
 
