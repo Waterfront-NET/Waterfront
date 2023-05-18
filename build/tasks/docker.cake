@@ -7,7 +7,7 @@ List<string> imageTags = new (args.Tags) {$"waterfront:{version.SemVer}"};
 
 Task("docker/build")
 .WithCriteria(args.Configuration is "Release")
-.IsDependentOn(":server:build")
+.IsDependentOn(":waterfront:build")
 .Does(() => {
   var project = projects.Find(project => project.Name == "Waterfront.Server");
 
