@@ -1,4 +1,3 @@
-using Dvchevskii.Extensions.Configuration.Yaml.FileExtensions;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using Waterfront.Acl.Sqlite.Configuration;
@@ -6,48 +5,13 @@ using Waterfront.Acl.Sqlite.Extensions;
 using Waterfront.Acl.Static.Extensions.DependencyInjection;
 using Waterfront.Acl.Static.Models;
 using Waterfront.AspNetCore.Extensions;
+using Waterfront.Extensions;
 using Waterfront.Extensions.DependencyInjection;
-using YamlDotNet.Serialization.NamingConventions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables("WF_");
-
-string? customConfigFilePath = builder.Configuration.GetValue<string?>(
-    "ConfigPath",
-    null
-);
-
-if (!string.IsNullOrEmpty(customConfigFilePath))
-{
-    builder.Configuration.AddYamlFile(
-        Path.GetFullPath(customConfigFilePath),
-        CamelCaseNamingConvention.Instance
-    );
-}
-else
-{
-    builder.Configuration.AddYamlFile(
-        Path.GetFullPath("wf_config.yaml"),
-        PascalCaseNamingConvention.Instance,
-        true
-    );
-    builder.Configuration.AddYamlFile(
-        Path.GetFullPath("wf_config.yml"),
-        CamelCaseNamingConvention.Instance,
-        true
-    );
-    builder.Configuration.AddYamlFile(
-        Path.GetFullPath("config.yaml"),
-        CamelCaseNamingConvention.Instance,
-        true
-    );
-    builder.Configuration.AddYamlFile(
-        Path.GetFullPath("config.yml"),
-        CamelCaseNamingConvention.Instance,
-        true
-    );
-}
+builder.Configuration.AddWaterfrontConfiguration();
 
 builder.Host.UseSerilog(
     (_, config) => config.WriteTo.Console(theme: AnsiConsoleTheme.Literate).MinimumLevel.Debug()
