@@ -13,12 +13,12 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables("WF_");
 
-string? customConfigFilePath = builder.Configuration.GetValue(
+string? customConfigFilePath = builder.Configuration.GetValue<string?>(
     "ConfigPath",
-    builder.Configuration.GetValue("Config_Path", string.Empty)!
+    null
 );
 
-if ( !string.IsNullOrEmpty(customConfigFilePath) )
+if (!string.IsNullOrEmpty(customConfigFilePath))
 {
     builder.Configuration.AddYamlFile(
         Path.GetFullPath(customConfigFilePath),
@@ -56,63 +56,62 @@ builder.Host.UseSerilog(
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddWaterfront(
-    wf => {
-        wf.AddTokenMiddleware()
-          .ConfigureTokens(builder.Configuration.GetSection("Tokens").Bind)
-          .ConfigureEndpoints(
-              endpoints => endpoints.SetTokenEndpoint(builder.Configuration["Endpoints:Token"])
-          )
-          .WithDefaultTokenEncoder()
-          .WithDefaultTokenDefinitionService();
+builder.Services.AddWaterfront(wf =>
+{
+    wf.AddTokenMiddleware()
+        .ConfigureTokens(builder.Configuration.GetSection("Tokens").Bind)
+        .ConfigureEndpoints(
+            endpoints => endpoints.SetTokenEndpoint(builder.Configuration["Endpoints:Token"])
+        )
+        .WithDefaultTokenEncoder()
+        .WithDefaultTokenDefinitionService();
 
-        if ( builder.Configuration.GetSection("CertificateProviders:File").Exists() )
-        {
-            wf.WithFileSigningCertificateProvider(
-                builder.Configuration.GetSection("CertificateProviders:File").Bind
-            );
-        }
+    if (builder.Configuration.GetSection("CertificateProviders:File").Exists())
+    {
+        wf.WithFileSigningCertificateProvider(
+            builder.Configuration.GetSection("CertificateProviders:File").Bind
+        );
+    }
 
-        if ( builder.Configuration.GetSection("Users").Exists() )
-        {
-            wf.AddStaticAuthentication(
-                builder.Configuration.GetSection("Users").Get<StaticAclUser[]>()!
-            );
-        }
+    if (builder.Configuration.GetSection("Users").Exists())
+    {
+        wf.AddStaticAuthentication(
+            builder.Configuration.GetSection("Users").Get<StaticAclUser[]>()!
+        );
+    }
 
-        if ( builder.Configuration.GetSection("Acl").Exists() )
-        {
-            wf.AddStaticAuthorization(
-                builder.Configuration.GetSection("Acl").Get<StaticAclPolicy[]>()!
-            );
-        }
+    if (builder.Configuration.GetSection("Acl").Exists())
+    {
+        wf.AddStaticAuthorization(
+            builder.Configuration.GetSection("Acl").Get<StaticAclPolicy[]>()!
+        );
+    }
 
-        if ( builder.Configuration.GetSection("Sqlite").Exists() )
+    if (builder.Configuration.GetSection("Sqlite").Exists())
+    {
+        SqliteAclOptions sqliteOptions = builder.Configuration
+            .GetSection("Sqlite")
+            .Get<SqliteAclOptions>();
+
+        if (sqliteOptions.SupportsAuthentication)
         {
-            SqliteAclOptions sqliteOptions = builder.Configuration.GetSection("Sqlite").Get<SqliteAclOptions>();
-            
-            if ( sqliteOptions.SupportsAuthentication )
+            wf.AddSqliteAuthentication(opt =>
             {
-                wf.AddSqliteAuthentication(
-                    opt => {
-                        opt.DataSource = sqliteOptions.DataSource;
-                        opt.Users      = sqliteOptions.Users;
-                    }
-                );
-            }
-            
-            if ( sqliteOptions.SupportsAuthorization )
+                opt.DataSource = sqliteOptions.DataSource;
+                opt.Users = sqliteOptions.Users;
+            });
+        }
+
+        if (sqliteOptions.SupportsAuthorization)
+        {
+            wf.AddSqliteAuthorization(opt =>
             {
-                wf.AddSqliteAuthorization(
-                    opt => {
-                        opt.DataSource = sqliteOptions.DataSource;
-                        opt.Acl        = sqliteOptions.Acl;
-                    }
-                );
-            }
+                opt.DataSource = sqliteOptions.DataSource;
+                opt.Acl = sqliteOptions.Acl;
+            });
         }
     }
-);
+});
 
 WebApplication app = builder.Build();
 
