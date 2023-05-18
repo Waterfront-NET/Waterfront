@@ -1,4 +1,4 @@
-# Waterfront.Server
+# Waterfront
 
 ASP.NET Core application implementing [token authentication][docker-token-authentication] server for Docker
 based on the [Waterfront][waterfront] library
