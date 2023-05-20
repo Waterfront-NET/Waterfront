@@ -3,7 +3,7 @@ using Dvchevskii.Extensions.Configuration.Yaml.FileExtensions;
 
 namespace Waterfront.Extensions;
 
-public static class ConfigurationManagerExtensions
+internal static class ConfigurationManagerExtensions
 {
     public static ConfigurationManager AddWaterfrontConfiguration(this ConfigurationManager self)
     {

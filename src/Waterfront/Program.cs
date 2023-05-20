@@ -1,7 +1,5 @@
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
-using Waterfront.Acl.Sqlite.Configuration;
-using Waterfront.Acl.Sqlite.Extensions;
 using Waterfront.Acl.Static.Extensions.DependencyInjection;
 using Waterfront.Acl.Static.Models;
 using Waterfront.AspNetCore.Extensions;
@@ -13,69 +11,36 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables("WF_");
 builder.Configuration.AddWaterfrontConfiguration();
 
-builder.Host.UseSerilog(
-    (_, config) => config.WriteTo.Console(theme: AnsiConsoleTheme.Literate).MinimumLevel.Debug()
-);
+builder.Host.UseSerilog((_, config) => config.WriteTo.Console(theme: AnsiConsoleTheme.Literate).MinimumLevel.Debug());
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddWaterfront(wf =>
-{
-    wf.AddTokenMiddleware()
-        .ConfigureTokens(builder.Configuration.GetSection("Tokens").Bind)
-        .ConfigureEndpoints(
-            endpoints => endpoints.SetTokenEndpoint(builder.Configuration["Endpoints:Token"])
-        )
-        .WithDefaultTokenEncoder()
-        .WithDefaultTokenDefinitionService();
-
-    if (builder.Configuration.GetSection("CertificateProviders:File").Exists())
+builder.Services.AddWaterfront(
+    wf =>
     {
-        wf.WithFileSigningCertificateProvider(
-            builder.Configuration.GetSection("CertificateProviders:File").Bind
-        );
-    }
+        wf.AddTokenMiddleware()
+          .ConfigureTokens(builder.Configuration.GetSection("Tokens").Bind)
+          .ConfigureEndpoints(endpoints => endpoints.SetTokenEndpoint(builder.Configuration.GetSection("Endpoints").GetValue<PathString>("Token")))
+          .WithDefaultTokenEncoder()
+          .WithDefaultTokenDefinitionService();
 
-    if (builder.Configuration.GetSection("Users").Exists())
-    {
-        wf.AddStaticAuthentication(
-            builder.Configuration.GetSection("Users").Get<StaticAclUser[]>()!
-        );
-    }
-
-    if (builder.Configuration.GetSection("Acl").Exists())
-    {
-        wf.AddStaticAuthorization(
-            builder.Configuration.GetSection("Acl").Get<StaticAclPolicy[]>()!
-        );
-    }
-
-    if (builder.Configuration.GetSection("Sqlite").Exists())
-    {
-        SqliteAclOptions sqliteOptions = builder.Configuration
-            .GetSection("Sqlite")
-            .Get<SqliteAclOptions>();
-
-        if (sqliteOptions.SupportsAuthentication)
+        if (builder.Configuration.GetSection("CertificateProviders:File").Exists())
         {
-            wf.AddSqliteAuthentication(opt =>
-            {
-                opt.DataSource = sqliteOptions.DataSource;
-                opt.Users = sqliteOptions.Users;
-            });
+            wf.WithFileSigningCertificateProvider(builder.Configuration.GetSection("CertificateProviders:File").Bind);
         }
 
-        if (sqliteOptions.SupportsAuthorization)
+        if (builder.Configuration.GetSection("Users").Exists())
         {
-            wf.AddSqliteAuthorization(opt =>
-            {
-                opt.DataSource = sqliteOptions.DataSource;
-                opt.Acl = sqliteOptions.Acl;
-            });
+            wf.WithStaticAuthentication(builder.Configuration.GetSection("Users").Get<StaticAclUser[]>()!);
+        }
+
+        if (builder.Configuration.GetSection("Acl").Exists())
+        {
+            wf.WithStaticAuthorization(builder.Configuration.GetSection("Acl").Get<StaticAclPolicy[]>()!);
         }
     }
-});
+);
 
 WebApplication app = builder.Build();
 

@@ -9,13 +9,9 @@
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5" />
-    <PackageReference Include="Waterfront.AspNetCore" Version="1.0.0-alpha.29" />
-    <PackageReference Include="Waterfront.Acl.Static" Version="1.0.0-alpha.30" />
-    <PackageReference Include="Waterfront.Acl.Static.Extensions.DependencyInjection"
-      Version="1.0.0-alpha.30" />
-    <PackageReference Include="Waterfront.Acl.Sqlite" Version="1.0.0-alpha.12" />
-    <PackageReference Include="Dvchevskii.Extensions.Configuration.Yaml.FileExtensions"
-      Version="1.0.0-alpha.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.16" />
+    <PackageReference Include="Waterfront.AspNetCore" Version="1.0.0-alpha.31" />
+    <PackageReference Include="Waterfront.Acl.Static.Extensions.DependencyInjection" Version="1.0.0-alpha.31" />
+    <PackageReference Include="Dvchevskii.Extensions.Configuration.Yaml.FileExtensions" Version="1.0.0-alpha.15" />
   </ItemGroup>
 </Project>
