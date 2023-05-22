@@ -24,25 +24,24 @@ Task("docker/build")
   }, contextDir.ToString());
 });
 
-
-/* Task("docker/export")
+Task("docker/export")
 .DoesForEach(imageTags, tag => {
-
-  var targetFile = paths.Root.Combine("artifacts/docker-images")
-  .CombineWithFilePath(tag.Replace(':', '_') + ".tar.gz");
-
-  Verbose("Exporting image {0} to file {1}", tag, targetFile);
+  var targetFile = paths.DockerImages.CombineWithFilePath(tag.Replace(":", "_") + ".tar.gz");
+  Verbose("Exporting image {0}", tag);
+  Debug("Target archive file path: {0}", targetFile);
 
   DockerSave(new DockerImageSaveSettings {
     Output = targetFile.ToString()
   }, tag);
 });
 
+Task("docker/login")
+.Does(() => DockerLogin(
+    apikeys.DockerId,
+    apikeys.DockerPassword
+  )
+);
 
 Task("docker/push")
-.DoesForEach(imageTags, tag => {
-  DockerPush(new DockerImagePushSettings {
-
-  }, tag);
-});
- */
+.IsDependentOn("docker/login")
+.DoesForEach(imageTags, tag => DockerPush(tag));

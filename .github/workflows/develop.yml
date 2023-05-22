@@ -10,9 +10,12 @@ jobs:
         with:
           fetch-depth: 0
       - uses: actions/setup-dotnet@v3
-      - run: ./build.sh --target build --configuration Release --verbosity verbose
-      - run: ./build.sh --target docker/build --configuration Release --verbosity verbose --no-build --tags develop
+      - run: ./build.sh --target docker/build --configuration Release --verbosity verbose --tags develop
       - run: ./build.sh --target docker/export --tags develop
+      - run: ./build.sh --target docker/push --tags develop
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
       - uses: actions/upload-artifact@v3
         with:
           name: libraries
