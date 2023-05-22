@@ -1,29 +1,21 @@
 #load ../data/*.cake
 
-Task("build")
-.IsDependentOn("restore")
-.WithCriteria(!args.NoBuild)
-.DoesForEach(Project.Runtimes, runtime => {
-  DotNetBuild(Project.Path.ToString(), new DotNetBuildSettings {
-    Configuration = args.Configuration,
-    NoRestore = true,
-    Runtime = runtime,
-    ArgumentCustomization = argBuilder => argBuilder.Append("--self-contained")
+var mainBuildTask = Task("build").WithCriteria(!args.NoBuild);
+
+Project.Runtimes.ForEach(runtime => {
+  Task($"build::{runtime}")
+  .IsDependentOn($"restore::{runtime}")
+  .WithCriteria(!args.NoBuild)
+  .Does(() => {
+    Verbose("Building Waterfront with configuration: {0}, for runtime: {1}");
+
+    DotNetBuild(Project.Path.ToString(), new DotNetBuildSettings {
+      Configuration = args.Configuration,
+      NoRestore = true,
+      Runtime = runtime,
+      ArgumentCustomization = argsBuilder => argsBuilder.Append("--self-contained")
+    });
   });
 
-  /* if(args.Configuration is "Release" && !args.NoCopyArtifacts) {
-
-  } */
-});
-
-Task("publish")
-.IsDependentOn("build")
-.DoesForEach(Project.Runtimes, runtime => {
-  DotNetPublish(Project.Path.ToString(), new DotNetPublishSettings {
-    Configuration = args.Configuration,
-    NoBuild = true,
-    SelfContained = true,
-    // PublishSingleFile = true,
-    Runtime = runtime,
-  });
+  mainBuildTask.IsDependentOn($"build::{runtime}");
 });

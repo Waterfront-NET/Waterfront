@@ -5,52 +5,27 @@ const string IMAGE_TAG_NAME = "waterfront";
 
 List<string> imageTags = new (args.Tags) {$"waterfront:{version.SemVer}"};
 
+
 Task("docker/build")
 .WithCriteria(args.Configuration is "Release")
-.IsDependentOn(":waterfront:build")
+.IsDependentOn("publish::linux-musl-x64")
 .Does(() => {
 
   var contextDir = Project.Directory;
   var dockerFile = contextDir.CombineWithFilePath("Dockerfile");
-  var sourceDir = Project.PublishDirectory("Release", "net6.0", "linux-musl-x64");
-
-  /* DockerBuild(new DockerImageBuildSettings {
-    BuildArg = new[] {
-      $"SOURCEDIR={sourceDir}"
-    },
-    File = dockerFile.ToString(),
-    Tag = imageTags.ToArray()
-  }, contextDir.ToString()); */
-
-
-  // var project = projects.Find(project => project.Name == "Waterfront.Server");
-
-  /* Information("Building Docker images for project {0}", project.Name);
-
-  var contextDir = project.Directory.ToString();
-  var dockerFile = project.Directory.CombineWithFilePath("Dockerfile").ToString();
-  var sourceDir = project.Directory.GetRelativePath(project.Directory
-                                   .Combine("bin/Release/net6.0"))
-                                   .ToString();
-
-  Verbose(
-    "Context directory: {0}\nDockerfile path: {1}\nImage source directory: {2}",
-    contextDir,
-    dockerFile,
-    sourceDir
-  );
+  var sourceDir = contextDir.GetRelativePath(Project.PublishDirectory(args.Configuration, "net6.0", "linux-musl-x64"));
 
   DockerBuild(new DockerImageBuildSettings {
     BuildArg = new[] {
       $"SOURCEDIR={sourceDir}"
     },
-    File = dockerFile,
+    File = dockerFile.ToString(),
     Tag = imageTags.ToArray()
-  }, contextDir); */
+  }, contextDir.ToString());
 });
 
 
-Task("docker/export")
+/* Task("docker/export")
 .DoesForEach(imageTags, tag => {
 
   var targetFile = paths.Root.Combine("artifacts/docker-images")
@@ -70,3 +45,4 @@ Task("docker/push")
 
   }, tag);
 });
+ */

@@ -1,19 +1,13 @@
 #load ../data/*.cake
 
+var mainRestoreTask = Task("restore");
 
-Task("restore")
-.Does(() => DotNetRestore(Project.Path.ToString()));
+Project.Runtimes.ForEach(runtime => {
+  Task($"restore::{runtime}")
+  .Does(() => DotNetRestore(new DotNetRestoreSettings {
+    WorkingDirectory = Project.Directory,
+    Runtime = runtime
+  }));
 
-/* var mainRestoreTask = Task("restore");
-
-foreach(var project in projects) {
-  var task = Task(project.Task("restore"))
-  .Does(() => {
-    DotNetRestore(project.Path.ToString(), new DotNetRestoreSettings {
-      NoDependencies = true
-    });
-  });
-
-  mainRestoreTask.IsDependentOn(task);
-}
- */
+  mainRestoreTask.IsDependentOn($"restore::{runtime}");
+});
