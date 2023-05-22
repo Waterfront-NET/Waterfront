@@ -11,5 +11,5 @@ jobs:
       - run: ./build.sh --target publish --configuration Release --no-build
       - uses: actions/upload-artifact@v3
         with:
-          name: libraries
+          name: Waterfront
           path: artifacts/lib/*.zip

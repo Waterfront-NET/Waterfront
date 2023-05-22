@@ -18,9 +18,9 @@ jobs:
           DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
       - uses: actions/upload-artifact@v3
         with:
-          name: libraries
+          name: Waterfront
           path: artifacts/lib/*.zip
       - uses: actions/upload-artifact@v3
         with:
-          name: docker-images
+          name: Waterfront/Docker
           path: artifacts/docker-images/*.tar.gz

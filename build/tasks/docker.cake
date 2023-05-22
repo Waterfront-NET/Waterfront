@@ -3,7 +3,7 @@
 
 const string IMAGE_TAG_NAME = "waterfront";
 
-List<string> imageTags = new (args.Tags.Select(tag => $"waterfront:{tag}")) {$"waterfront:{version.SemVer}"};
+List<string> imageTags = new (args.Tags.Select(tag => $"{apikeys.DockerId}/waterfront:{tag}")) {$"{apikeys.DockerId}/waterfront:{version.SemVer}"};
 
 
 Task("docker/build")
