@@ -6,6 +6,6 @@ apikeys = new BuildApiKeys {
 };
 
 class BuildApiKeys {
-  public string DockerId { get; init }
+  public string DockerId { get; init; }
   public string DockerPassword { get; init; }
 }
