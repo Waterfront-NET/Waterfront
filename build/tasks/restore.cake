@@ -1,6 +1,10 @@
 #load ../data/*.cake
 
-var mainRestoreTask = Task("restore");
+
+Task("restore")
+.Does(() => DotNetRestore(Project.Path.ToString()));
+
+/* var mainRestoreTask = Task("restore");
 
 foreach(var project in projects) {
   var task = Task(project.Task("restore"))
@@ -12,3 +16,4 @@ foreach(var project in projects) {
 
   mainRestoreTask.IsDependentOn(task);
 }
+ */

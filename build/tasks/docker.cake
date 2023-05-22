@@ -9,9 +9,23 @@ Task("docker/build")
 .WithCriteria(args.Configuration is "Release")
 .IsDependentOn(":waterfront:build")
 .Does(() => {
-  var project = projects.Find(project => project.Name == "Waterfront.Server");
 
-  Information("Building Docker images for project {0}", project.Name);
+  var contextDir = Project.Directory;
+  var dockerFile = contextDir.CombineWithFilePath("Dockerfile");
+  var sourceDir = Project.PublishDirectory("Release", "net6.0", "linux-musl-x64");
+
+  /* DockerBuild(new DockerImageBuildSettings {
+    BuildArg = new[] {
+      $"SOURCEDIR={sourceDir}"
+    },
+    File = dockerFile.ToString(),
+    Tag = imageTags.ToArray()
+  }, contextDir.ToString()); */
+
+
+  // var project = projects.Find(project => project.Name == "Waterfront.Server");
+
+  /* Information("Building Docker images for project {0}", project.Name);
 
   var contextDir = project.Directory.ToString();
   var dockerFile = project.Directory.CombineWithFilePath("Dockerfile").ToString();
@@ -32,7 +46,7 @@ Task("docker/build")
     },
     File = dockerFile,
     Tag = imageTags.ToArray()
-  }, contextDir);
+  }, contextDir); */
 });
 
 

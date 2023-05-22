@@ -10,12 +10,12 @@ certificate_providers:
 acl:
   - name: default
     access:
-      - name: '*/**'
+      - name: '**/*'
         type: repository
         actions: [pull]
   - name: admin
     access:
-      - name: '*/**'
+      - name: '**/*'
         type: repository
         actions: [pull, push]
       - name: '*'

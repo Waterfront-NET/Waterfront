@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RuntimeIdentifiers>linux-x64;win-x64;linux-musl-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +12,9 @@
     <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.16" />
     <PackageReference Include="Waterfront.AspNetCore" Version="1.0.0-alpha.31" />
-    <PackageReference Include="Waterfront.Acl.Static.Extensions.DependencyInjection" Version="1.0.0-alpha.31" />
-    <PackageReference Include="Dvchevskii.Extensions.Configuration.Yaml.FileExtensions" Version="1.0.0-alpha.15" />
+    <PackageReference Include="Waterfront.Acl.Static.Extensions.DependencyInjection"
+      Version="1.0.0-alpha.31" />
+    <PackageReference Include="Dvchevskii.Extensions.Configuration.Yaml.FileExtensions"
+      Version="1.0.0-alpha.15" />
   </ItemGroup>
 </Project>
