@@ -11,7 +11,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.16" />
-    <PackageReference Include="Waterfront.AspNetCore" Version="1.0.0-alpha.34" />
+    <PackageReference Include="Waterfront.AspNetCore" Version="1.0.0-alpha.35" />
     <PackageReference Include="Waterfront.Acl.Static.Extensions.DependencyInjection"
       Version="1.0.0-alpha.32" />
     <PackageReference Include="Dvchevskii.Extensions.Configuration.Yaml.FileExtensions"
