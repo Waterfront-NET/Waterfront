@@ -26,7 +26,7 @@ Task("docker/build")
 
 Task("docker/export")
 .DoesForEach(imageTags, tag => {
-  var targetFile = paths.DockerImages.CombineWithFilePath(tag.Replace(":", "_") + ".tar.gz");
+  var targetFile = paths.DockerImages.CombineWithFilePath(tag.Replace(":", "_").Replace("/", "_") + ".tar.gz");
   Verbose("Exporting image {0}", tag);
   Debug("Target archive file path: {0}", targetFile);
 
